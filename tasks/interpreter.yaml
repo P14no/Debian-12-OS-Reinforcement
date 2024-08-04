@@ -1,0 +1,20 @@
+- name: Get /etc/os-release
+  raw: cat /etc/os-release
+  register: os_release
+  changed_when: false
+  check_mode: false
+
+#检查python3 是否存在
+- name check whether python3 exists
+  raw: which python3
+  register: python3_status
+  failed_when: false
+  changed_when: false
+
+# 使用 Python3 作为 ansible 解析器
+- name: Set ansible_python_interpreter
+  set_fact:
+    ansible_python_interpreter: "/usr/bin/python3"
+  when:
+    - python_status.rc == 0
+    - '"ID=debian" in os_release.stdout_lines'

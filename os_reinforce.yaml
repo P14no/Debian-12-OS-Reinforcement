@@ -1,0 +1,33 @@
+- host:all
+  gather_facts: false
+  remote_user: root
+  var_files:
+   - vars/default.yaml
+  
+  tasks:
+    # Debian ansible 解析器为python3（由于debian12不再支持python2
+    - include_tasks: tasks/interpreter.yaml
+
+    #获取机器属性
+    - name: Gather minimal facts
+      setup:
+        gather_subset: "!all"
+
+    #获取机器ip
+    - name: Gather network
+      setup:
+        gather_subset: "!all,!min,network"
+        filter: "ansible_default_ipv4"
+    
+    #安全加固
+    - import_roles:
+        name: security
+    
+    #系统配置(用户、内核参数、软件、定时任务)
+    - import_roles:
+        name: system
+
+    #Docker
+    - import_roles:
+        name: docker
+      
